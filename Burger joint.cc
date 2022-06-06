@@ -21,7 +21,7 @@ void calculating(){
 void finding(string elem, int qty){
     vector<string>::iterator itr = find(v.begin(), v.end(), elem);
     if (itr != v.end()){
-        v[distance(v.begin(), itr) + 1] = to_string(stoi(*itr) + qty);
+        v[distance(v.begin(), itr) + 1] = to_string(stoi(v[distance(v.begin(), itr) + 1]) + qty);
     }
     else {
         v.push_back(elem);
