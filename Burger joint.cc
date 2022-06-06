@@ -56,7 +56,7 @@ void ordering(int ord, int qty){
     }
     else
     {
-        cout <<"You have entered an invalid number please try again";
+        cout <<"\nYou have entered an invalid number please try again";
         cout << "\nFood/Drinks: ";
         cin >> ord;
         cout << "\nQuantity: ";
@@ -84,7 +84,7 @@ int main() {
                 cout << "Enter the order details (Chicken burger id = 1, Beef burger id = 2, Coca cola id = 3, Pepsi id = 4):\n";
                 
                 while (order != 0){
-                    cout << "Food/Drinks: ";
+                    cout << "\nFood/Drinks: ";
                     cin >> order;
                     cout << "\nQuantity: ";
                     cin >> qty;
