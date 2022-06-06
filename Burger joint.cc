@@ -14,10 +14,14 @@ vector<string> v;
 time_t now = time(0);
 tm *ltm = localtime(&now);
 
+void calculating(){
+
+}
+
 void finding(string elem, int qty){
     vector<string>::iterator itr = find(v.begin(), v.end(), elem);
     if (itr != v.end()){
-        v[distance(v.begin(), itr)] = to_string(stoi(*itr) + qty);
+        v[distance(v.begin(), itr) + 1] = to_string(stoi(*itr) + qty);
     }
     else {
         v.push_back(elem);
