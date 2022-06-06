@@ -14,36 +14,41 @@ vector<string> v;
 time_t now = time(0);
 tm *ltm = localtime(&now);
 
+void finding(string elem, int qty){
+    vector<string>::iterator itr = find(v.begin(), v.end(), elem);
+    if (itr != v.end()){
+        v[distance(v.begin(), itr)] = to_string(stoi(*itr) + qty);
+    }
+    else {
+        v.push_back(elem);
+        v.push_back(to_string(qty));
+    }
+}
+
 void ordering(int ord, int qty){
+    string elem;
+
     if (ord == 0 || qty == 0){
         return;
     }
     else if (ord == 1){
-        vector<string>::iterator itr;
-        for(itr=v.begin();itr!=v.end();itr++)
-        {
-            if (*itr == "Chicken burger"){
-                
-            } 
-        }
-
-        v.push_back("Chicken burger");
-        v.push_back(to_string(qty));
+        elem = "Chicken burger";
+        finding(elem, qty);
     }
     else if (ord == 2)
     {
-        v.push_back("Beef burger");
-        v.push_back(to_string(qty));
+        elem = "Beef burger";
+        finding(elem, qty);
     }
     else if (ord == 3)
     {
-        v.push_back("Coca cola");
-        v.push_back(to_string(qty));
+        elem = "Coca cola";
+        finding(elem, qty);
     }
     else if (ord == 4)
     {
-        v.push_back("Pepsi");
-        v.push_back(to_string(qty));
+        elem = "Pepsi";
+        finding(elem, qty);
     }
     else
     {
