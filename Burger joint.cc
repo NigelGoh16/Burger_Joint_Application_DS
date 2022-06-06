@@ -94,7 +94,7 @@ int main() {
                 }
 
                 fstream file;
-                file.open("Order.txt",ios_base::out);
+                file.open("Order.txt",ios_base::app);
                 
                 vector<string>::iterator itr;
                     
@@ -105,7 +105,8 @@ int main() {
                 {
                     file << *itr << ", ";
                 }
-            
+                
+                file << endl;
                 file.close();
                 cout << "You have successfully completed your order.\n";
             }
