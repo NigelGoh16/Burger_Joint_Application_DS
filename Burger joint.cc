@@ -8,12 +8,68 @@
 #include <iomanip>
 #include <ctime>
 #include <cmath>
+#include <limits>
+#include <cstring>
 
 using namespace std;
 
 vector<string> v;
 time_t now = time(0);
 tm *ltm = localtime(&now);
+
+void delete_record()
+{
+
+    fstream file;
+    fstream temp;
+
+    file.open("Order.txt",ios::app);
+    temp.open("temp.txt",ios::out);
+    char data[25];
+    char id[25];
+    char a[25];
+    cin.ignore();
+    cout<<" \n\t Enter the id to delete record : ";
+    cin.getline(a,25);
+    while(!file.eof())
+    {
+        file.getline(id,25,',');
+        file.getline(data,25,',');
+        if(strcmp(id,a)==0)
+        {
+            continue;
+        }
+        else
+        {
+            temp<< id<<' '<<data<<' ';
+        }
+
+
+    }
+    temp.close();
+    file.close();
+
+    file.open("Order.txt",ios::out);
+    temp.open("temp.txt",ios::in);
+    while(!temp.eof())
+    {
+        temp.getline(id,25,',');
+        temp.getline(data,25,',');
+        //file<< id <<' '<<data<<' ';
+    }
+    temp.close();
+    file.close();
+    remove("temp.txt");
+    cout<<"\n done !!! \n";
+}
+
+fstream& GotoLine(fstream& file, unsigned int num){
+    file.seekg(ios::beg);
+    for(int i=0; i < num - 1; ++i){
+        file.ignore(numeric_limits < streamsize > ::max(), '\n');
+    }
+    return file;
+}
 
 void cal_total(string elem, int qty, double price){
     vector<string>::iterator itr = find(v.begin(), v.end(), elem);
@@ -129,9 +185,8 @@ int main() {
             }
             else if (choice == 2)
             {
-                cout << "\n\nOrder ID,\tDate,\tTime,\tAmount\n";
-                
-                ifstream file("Order.txt");
+                cout << "\n\nOrder ID,\tDate,\t\tTime,\t\tAmount\n";
+                fstream file("Order.txt");
                 string data = "";
                 int id = 1;
                 
@@ -172,22 +227,59 @@ int main() {
                 cout << "\nFunctions:\n" << "1. Search Order\n" << "2. Sort Orders\n" << "3. Cancel Order\n";
                 cout << "Enter the function in numbers: ";
                 cin >> function;
-
+                
+                string elem;
                 switch (function){
                     case 1:
+                        int ID, line = 1;
+                        cout << "Enter the order ID: ";
+                        cin >> ID;
 
-                        //insert search algorithm
-                    
+                        cout << "\n\nOrder ID,\t\tDate,\t\tTime,\t\tAmount,\t\tOrder/Quantity\n";
+                        data = "";
+
+                        GotoLine(file, ID);
+                        cout << setfill('0') << setw(4) << ID << "\t\t";
+                        while (getline(file, data, ','))
+                        {
+                            v.push_back(data);
+                        }
+                        vector<string>::iterator itr;
+                        
+                        for(itr=v.begin();itr!=v.end();itr++)
+                        {
+                            if (*itr == "Chicken burger" || *itr == "Beef burger" || *itr == "Coca cola" || *itr == "Pepsi"){
+                                cout << *itr << '/';
+                                ++itr;
+                                cout << *itr << ", ";
+                            }
+                            else if (*itr == "total"){}
+                            else if (*itr == "\n"){}
+                            else if (!isnan(stod(*itr))){
+                                cout << *itr << "\t\t";
+                            }
+                            
+                        }                        
+                        file.close();
                         break;
                     case 2:
+                        ostream_iterator< string > output ( cout, "\n" );
+                        while (getline(file,elem,'\n'))
+                        {
+                            v.push_back(elem);
+                        }
+                        file.close();
+                        sort(v.begin(),v.end());
 
-                        //insert sort algorithm
+                        for ( unsigned int i = 0; i < v.size(); i++ )
+                        {
+                        cout << v[i] << endl;
+                        }
 
+                        cin.get();
                         break;
                     case 3:
-
-                        //insert cancel algorithm
-
+                        delete_record();
                         break;
                 }
 
