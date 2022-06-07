@@ -7,6 +7,7 @@
 #include <string>
 #include <iomanip>
 #include <ctime>
+#include <cmath>
 
 using namespace std;
 
@@ -14,8 +15,15 @@ vector<string> v;
 time_t now = time(0);
 tm *ltm = localtime(&now);
 
-void calculating(){
-
+void cal_total(string elem, int qty, double price){
+    vector<string>::iterator itr = find(v.begin(), v.end(), elem);
+    if (itr == v.end()){
+        v.push_back("total");
+        v.push_back("0");
+    }
+    itr = find(v.begin(), v.end(), elem);
+    v[distance(v.begin(), itr) + 1] = to_string(stoi(v[distance(v.begin(), itr) + 1]) + (qty * price));
+    
 }
 
 void finding(string elem, int qty){
@@ -31,27 +39,36 @@ void finding(string elem, int qty){
 
 void ordering(int ord, int qty){
     string elem;
+    double price;
 
     if (ord == 0 || qty == 0){
         return;
     }
     else if (ord == 1){
+        price = 5.00;
         elem = "Chicken burger";
+        cal_total("total", qty, price);
         finding(elem, qty);
     }
     else if (ord == 2)
     {
+        price = 5.00;
         elem = "Beef burger";
+        cal_total("total", qty, price);
         finding(elem, qty);
     }
     else if (ord == 3)
     {
+        price = 2.50;
         elem = "Coca cola";
+        cal_total("total", qty, price);
         finding(elem, qty);
     }
     else if (ord == 4)
     {
+        price = 2.50;
         elem = "Pepsi";
+        cal_total("total", qty, price);
         finding(elem, qty);
     }
     else
@@ -98,12 +115,12 @@ int main() {
                 
                 vector<string>::iterator itr;
                     
-                file << 1900 + ltm->tm_year << '/' << 1 + ltm->tm_mon << '/' << ltm->tm_mday << ", ";
-                file << ltm->tm_hour << ":" << setfill('0') << setw(2) <<ltm->tm_min << ", ";
+                file << 1900 + ltm->tm_year << '/' << 1 + ltm->tm_mon << '/' << ltm->tm_mday << ",";
+                file << setfill('0') << setw(2) << ltm->tm_hour << setfill('0') << setw(2) <<ltm->tm_min << ",";
 
                 for(itr=v.begin();itr!=v.end();itr++)
                 {
-                    file << *itr << ", ";
+                    file << *itr << ',';
                 }
                 
                 file << endl;
@@ -117,12 +134,39 @@ int main() {
                 ifstream file("Order.txt");
                 string data = "";
                 int id = 1;
-                while (getline(file, data))
+                
+                cout << setfill('0') << setw(4) << id << "\t\t";
+
+                while (getline(file, data, ','))
                 {
-                    cout << setfill('0') << setw(4) << id << "\t";
-                    cout << data;
-                    id++;
+                    v.push_back(data);
                 }
+
+                vector<string>::iterator itr;
+                
+                for(itr=v.begin();itr!=v.end();itr++)
+                {
+                    if (*itr == "Chicken burger" || *itr == "Beef burger" || *itr == "Coca cola" || *itr == "Pepsi"){
+                        advance(itr, 1);
+                    }
+                    else if (*itr == "total"){
+                        ++itr;
+                        cout << '\t' << fixed << setprecision(2) << stod(*itr) << '\t';
+                    }
+                    else if (*itr == "\n"){
+                        break;   
+                    }
+                    else if (!v[distance(v.begin(), itr)].find('\n')){
+                        ++id;
+                        cout << '\n' << setfill('0') << setw(4) << id << "\t\t";
+                        v[distance(v.begin(), itr)].erase(remove(v[distance(v.begin(), itr)].begin(), v[distance(v.begin(), itr)].end(), '\n'));
+                        cout << v[distance(v.begin(), itr)] << '\t';
+                    }
+                    else if (!isnan(stoi(*itr)))
+                    {
+                        cout << *itr << '\t';
+                    }
+                } 
                 file.close();
 
                 cout << "\nFunctions:\n" << "1. Search Order\n" << "2. Sort Orders\n" << "3. Cancel Order\n";
