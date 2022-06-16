@@ -16,35 +16,117 @@ using namespace std;
 vector<string> v;
 time_t now = time(0);
 tm *ltm = localtime(&now);
+fstream file;
+fstream temp;
+vector<string>::iterator itr;
 
-void delete_record()
+void writing(string elem, int qty){
+    vector<string>::iterator itr = find(v.begin(), v.end(), elem);
+    if (itr != v.end()){
+        v[distance(v.begin(), itr) + 1] = to_string(stoi(v[distance(v.begin(), itr) + 1]) + qty);
+    }
+    else {
+        v.push_back(elem);
+        v.push_back(to_string(qty));
+    }
+}
+
+void writing1(string filename){
+    file.open("Order.txt",ios_base::in);
+    string data = "";
+    int line = 1;
+    while (getline(file, data,',')){
+        if (data.find('\n') != string::npos){
+            line++;
+        }
+    }
+    file.close();
+
+    file.open(filename,ios_base::app);
+    file << setfill('0') << setw(4) << line;
+    file << "\t," << 1900 + ltm->tm_year << '/' << 1 + ltm->tm_mon << '/' << ltm->tm_mday << ',';
+    file << setfill('0') << setw(2) << ltm->tm_hour << setfill('0') << setw(2) << ltm->tm_min << ',';
+
+    for(itr=v.begin();itr!=v.end();itr++){
+        file << *itr << ',';
+    }
+    file << endl;
+    file.close();
+}
+
+void cal_total(string elem, int qty, double price){
+    vector<string>::iterator itr = find(v.begin(), v.end(), elem);
+    if (itr == v.end()){
+        v.push_back("total");
+        v.push_back("0");
+    }
+    itr = find(v.begin(), v.end(), elem);
+    v[distance(v.begin(), itr) + 1] = to_string(stoi(v[distance(v.begin(), itr) + 1]) + (qty * price));
+    
+}
+
+void ordering(int ord, int qty){
+    string elem;
+    double price;
+
+    if (ord == 0 || qty == 0){
+        return;
+    }
+    else if (ord == 1){
+        price = 5.00;
+        elem = "Chicken burger";
+        cal_total("total", qty, price);
+        writing(elem, qty);
+    }
+    else if (ord == 2)
+    {
+        price = 5.00;
+        elem = "Beef burger";
+        cal_total("total", qty, price);
+        writing(elem, qty);
+    }
+    else if (ord == 3)
+    {
+        price = 2.50;
+        elem = "Coca cola";
+        cal_total("total", qty, price);
+        writing(elem, qty);
+    }
+    else if (ord == 4)
+    {
+        price = 2.50;
+        elem = "Pepsi";
+        cal_total("total", qty, price);
+        writing(elem, qty);
+    }
+    else
+    {
+        cout <<"\nYou have entered an invalid number please try again";
+        cout << "\nFood/Drinks: ";
+        cin >> ord;
+        cout << "\nQuantity: ";
+        cin >> qty;
+        ordering(ord, qty);
+    }
+}
+
+void delete_record(const char *a)
 {
-
-    fstream file;
-    fstream temp;
-
     file.open("Order.txt",ios::app);
     temp.open("temp.txt",ios::out);
     char data[25];
     char id[25];
-    char a[25];
     cin.ignore();
-    cout<<" \n\t Enter the id to delete record : ";
-    cin.getline(a,25);
     while(!file.eof())
     {
         file.getline(id,25,',');
         file.getline(data,25,',');
-        if(strcmp(id,a)==0)
-        {
+        if(strcmp(id,a)==0){
             continue;
         }
-        else
-        {
+        else{
             temp<< id<<' '<<data<<' ';
         }
-
-
     }
     temp.close();
     file.close();
@@ -71,75 +153,11 @@ fstream& GotoLine(fstream& file, unsigned int num){
     return file;
 }
 
-void cal_total(string elem, int qty, double price){
-    vector<string>::iterator itr = find(v.begin(), v.end(), elem);
-    if (itr == v.end()){
-        v.push_back("total");
-        v.push_back("0");
-    }
-    itr = find(v.begin(), v.end(), elem);
-    v[distance(v.begin(), itr) + 1] = to_string(stoi(v[distance(v.begin(), itr) + 1]) + (qty * price));
-    
-}
 
-void finding(string elem, int qty){
-    vector<string>::iterator itr = find(v.begin(), v.end(), elem);
-    if (itr != v.end()){
-        v[distance(v.begin(), itr) + 1] = to_string(stoi(v[distance(v.begin(), itr) + 1]) + qty);
-    }
-    else {
-        v.push_back(elem);
-        v.push_back(to_string(qty));
-    }
-}
-
-void ordering(int ord, int qty){
-    string elem;
-    double price;
-
-    if (ord == 0 || qty == 0){
-        return;
-    }
-    else if (ord == 1){
-        price = 5.00;
-        elem = "Chicken burger";
-        cal_total("total", qty, price);
-        finding(elem, qty);
-    }
-    else if (ord == 2)
-    {
-        price = 5.00;
-        elem = "Beef burger";
-        cal_total("total", qty, price);
-        finding(elem, qty);
-    }
-    else if (ord == 3)
-    {
-        price = 2.50;
-        elem = "Coca cola";
-        cal_total("total", qty, price);
-        finding(elem, qty);
-    }
-    else if (ord == 4)
-    {
-        price = 2.50;
-        elem = "Pepsi";
-        cal_total("total", qty, price);
-        finding(elem, qty);
-    }
-    else
-    {
-        cout <<"\nYou have entered an invalid number please try again";
-        cout << "\nFood/Drinks: ";
-        cin >> ord;
-        cout << "\nQuantity: ";
-        cin >> qty;
-        ordering(ord, qty);
-    }
-}
 
 int main() {
-    int choice, order, qty, function, payment;
+    int choice, order, qty, function, payment, ID, line, num;
+    string data, elem;
 
 	cout << "=== Welcome to the burger joint drive thru application! ===\n\n";
 
@@ -161,44 +179,29 @@ int main() {
                     cin >> order;
                     cout << "\nQuantity: ";
                     cin >> qty;
-                    cout << "Enter 0 to complete your order";
+                    cout << "Enter 0 to complete the order";
                     
                     ordering(order, qty);
                 }
 
-                fstream file;
-                file.open("Order.txt",ios_base::app);
+                writing1("Pending.txt");
+                writing1("Order.txt");
                 
-                vector<string>::iterator itr;
-                    
-                file << 1900 + ltm->tm_year << '/' << 1 + ltm->tm_mon << '/' << ltm->tm_mday << ",";
-                file << setfill('0') << setw(2) << ltm->tm_hour << setfill('0') << setw(2) <<ltm->tm_min << ",";
-
-                for(itr=v.begin();itr!=v.end();itr++)
-                {
-                    file << *itr << ',';
-                }
-                
-                file << endl;
-                file.close();
-                cout << "You have successfully completed your order.\n";
+                cout << "\nYou have successfully completed your order.\n";
+                main();
             }
             else if (choice == 2)
             {
                 cout << "\n\nOrder ID,\tDate,\t\tTime,\t\tAmount\n";
-                fstream file("Order.txt");
-                string data = "";
-                int id = 1;
-                
-                cout << setfill('0') << setw(4) << id << "\t\t";
+                file.open("Order.txt");
+                data = "";
 
                 while (getline(file, data, ','))
                 {
                     v.push_back(data);
                 }
-
-                vector<string>::iterator itr;
                 
+
                 for(itr=v.begin();itr!=v.end();itr++)
                 {
                     if (*itr == "Chicken burger" || *itr == "Beef burger" || *itr == "Coca cola" || *itr == "Pepsi"){
@@ -211,15 +214,9 @@ int main() {
                     else if (*itr == "\n"){
                         break;   
                     }
-                    else if (!v[distance(v.begin(), itr)].find('\n')){
-                        ++id;
-                        cout << '\n' << setfill('0') << setw(4) << id << "\t\t";
-                        v[distance(v.begin(), itr)].erase(remove(v[distance(v.begin(), itr)].begin(), v[distance(v.begin(), itr)].end(), '\n'));
-                        cout << v[distance(v.begin(), itr)] << '\t';
-                    }
                     else if (!isnan(stoi(*itr)))
                     {
-                        cout << *itr << '\t';
+                        cout << setfill('0') << setw(4) << *itr << '\t';
                     }
                 } 
                 file.close();
@@ -228,23 +225,35 @@ int main() {
                 cout << "Enter the function in numbers: ";
                 cin >> function;
                 
-                string elem;
+                
                 switch (function){
-                    case 1:
-                        int ID, line = 1;
+                    case 1:{
                         cout << "Enter the order ID: ";
                         cin >> ID;
+                        cout << "\n\nOrder ID,\t\tDate,\t\t\tTime,\t\tAmount,\t\tOrder/Quantity";
+                        data = "", line = 1, elem = "\n", num = 0;
 
-                        cout << "\n\nOrder ID,\t\tDate,\t\tTime,\t\tAmount,\t\tOrder/Quantity\n";
-                        data = "";
+                        
+                        v.clear();
 
-                        GotoLine(file, ID);
-                        cout << setfill('0') << setw(4) << ID << "\t\t";
-                        while (getline(file, data, ','))
-                        {
-                            v.push_back(data);
+                        while (getline(file, data, ',')){
+                            if (data.find('\n') != string::npos){
+                                ++line;
+                                if (line == ID){
+                                    v.push_back(data);
+                                }
+                            }
+                            else if (line == ID){
+                                if (line == 1 || num == 0){
+                                    v.push_back("\n");
+                                    v.push_back(data);
+                                    num++;
+                                }
+                                else{
+                                    v.push_back(data);
+                                }
+                            }
                         }
-                        vector<string>::iterator itr;
                         
                         for(itr=v.begin();itr!=v.end();itr++)
                         {
@@ -253,16 +262,22 @@ int main() {
                                 ++itr;
                                 cout << *itr << ", ";
                             }
-                            else if (*itr == "total"){}
+                            else if (*itr == "total"){
+                                ++itr;
+                                cout << fixed << setprecision(2) << stod(*itr) << "\t\t";
+                            }
                             else if (*itr == "\n"){}
                             else if (!isnan(stod(*itr))){
                                 cout << *itr << "\t\t";
                             }
-                            
                         }                        
                         file.close();
-                        break;
+                        cout << endl << endl;
+                        main();
+                    }
+                        
                     case 2:
+                    {
                         ostream_iterator< string > output ( cout, "\n" );
                         while (getline(file,elem,'\n'))
                         {
@@ -278,9 +293,14 @@ int main() {
 
                         cin.get();
                         break;
+                    }
+                        
                     case 3:
-                        delete_record();
-                        break;
+                        string id;
+                        cout << "\nEnter the id to delete record : ";
+                        cin >> id;
+                        delete_record(id.c_str());
+                        main();
                 }
 
             }
