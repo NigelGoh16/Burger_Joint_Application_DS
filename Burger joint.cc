@@ -110,23 +110,30 @@ void ordering(int ord, int qty){
     }
 }
 
-void delete_record(const char *a)
+void delete_record()
 {
     file.open("Order.txt",ios::app);
     temp.open("temp.txt",ios::out);
     char data[25];
     char id[25];
+    char a[25];
     cin.ignore();
+    cout<<" \n\t Enter the id to delete record : ";
+    cin.getline(a,25);
     while(!file.eof())
     {
         file.getline(id,25,',');
         file.getline(data,25,',');
-        if(strcmp(id,a)==0){
+        if(strcmp(id,a)==0)
+        {
             continue;
         }
-        else{
+        else
+        {
             temp<< id<<' '<<data<<' ';
         }
+
+
     }
     temp.close();
     file.close();
@@ -296,10 +303,7 @@ int main() {
                     }
                         
                     case 3:
-                        string id;
-                        cout << "\nEnter the id to delete record : ";
-                        cin >> id;
-                        delete_record(id.c_str());
+                        delete_record();
                         main();
                 }
 
