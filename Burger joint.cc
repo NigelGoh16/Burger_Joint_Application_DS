@@ -233,9 +233,9 @@ int main() {
                         cout << "\n\nOrder ID,\t\tDate,\t\t\tTime,\t\tAmount,\t\tOrder/Quantity";
                         data = "", line = 1, elem = "\n", num = 0;
 
-                        
                         v.clear();
 
+                        file.open("Order.txt");
                         while (getline(file, data, ',')){
                             if (data.find('\n') != string::npos){
                                 ++line;
