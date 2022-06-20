@@ -11,16 +11,18 @@
 #include <limits>
 #include <cstring>
 #include <bits/stdc++.h>
-#include <filesystem>
 
 using namespace std;
 
 vector<string> v;
+vector<int> v1, v2;
 time_t now = time(0);
 tm *ltm = localtime(&now);
 fstream file;
 fstream temp;
 vector<string>::iterator itr;
+vector<int>::iterator itr1;
+map <int, int> mp;
 
 void writing(string elem, int qty){
     vector<string>::iterator itr = find(v.begin(), v.end(), elem);
@@ -142,9 +144,8 @@ void delete_record(int n, int num)
     file.close();
     if (num == 0){
         remove("Order.txt");
-        remove("Pending.txt");
         rename("Temp.txt", "Order.txt");
-        std::filesystem::copy_file("Order.txt", "Pending.txt");
+        delete_record(n, 1);
     }
     else if (num ==1){
         remove("Pending.txt");
@@ -285,10 +286,12 @@ int main() {
                         
                     case 2:
                     {
+                        //Sort id decreasing
                         cout << "\n\nOrder ID,\tDate,\t\tTime,\t\tAmount\n";
                         file.open("Order.txt", ios_base::in);
                         data = "", num = 1;
 
+                        v.clear();
                         while (getline(file, data, ','))
                         {
                             v.push_back(data);
@@ -341,6 +344,43 @@ int main() {
                             }   
                         }
                         cout << endl << endl << endl;
+
+                        //Sort Amount increasing
+                        cout << "\n\nOrder ID,\tDate,\t\tTime,\t\tAmount\n";
+                        file.open("Order.txt", ios_base::in);
+                        data = "", num = 1;
+
+                        while (getline(file, data, ','))
+                        {
+                            v.push_back(data);
+                        }
+                        file.close();
+
+                        for(itr=v.begin();itr!=v.end();itr++)
+                        {
+                            if (*itr == "total"){
+                                ++itr;
+                                v1.push_back(stoi(*itr));
+                            }
+                        }
+                        copy(v1.begin(), v1.end(), back_inserter(v2));
+                        sort(v1.begin(), v1.end());
+
+                        for (auto x : v1){
+                            for(itr1=v2.begin();itr1!=v2.end();itr++)
+                            {
+                                
+                            }
+                        }
+                            
+                        for(itr=v.begin();itr!=v.end();itr++)
+                        {
+                            if (*itr == "total"){
+                                ++itr;
+                                v1.push_back(stoi(*itr));
+                            }
+                        }
+
                         main();
                     }
                         
