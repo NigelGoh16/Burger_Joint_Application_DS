@@ -285,21 +285,63 @@ int main() {
                         
                     case 2:
                     {
-                        ostream_iterator< string > output ( cout, "\n" );
-                        while (getline(file,elem,'\n'))
+                        cout << "\n\nOrder ID,\tDate,\t\tTime,\t\tAmount\n";
+                        file.open("Order.txt", ios_base::in);
+                        data = "", num = 1;
+
+                        while (getline(file, data, ','))
                         {
-                            v.push_back(elem);
+                            v.push_back(data);
                         }
                         file.close();
-                        sort(v.begin(),v.end());
 
-                        for ( unsigned int i = 0; i < v.size(); i++ )
-                        {
-                        cout << v[i] << endl;
+                        data = "";
+                        file.open("Order.txt",ios_base::in);
+                        while (getline(file, data,',')){
+                            if (data.find('\n') != string::npos){
+                                num++;
+                            }
                         }
+                        file.close();
 
-                        cin.get();
-                        break;
+                        while (num != 0){
+                            line = 1;
+                            for(itr=v.begin();itr!=v.end();itr++){
+                                try{
+                                    data = *itr;
+                                    if (*itr == "Chicken burger" || *itr == "Beef burger" || *itr == "Coca cola" || *itr == "Pepsi"){
+                                        advance(itr, 1);
+                                    }
+                                    else if (*itr == "total" && line == num){
+                                        ++itr;
+                                        cout << '\t' << fixed << setprecision(2) << stod(*itr) << '\t';
+                                    }
+                                    else if (data.find('\n') != string::npos){
+                                        ++line;
+                                        if (line == num)
+                                            cout << setfill('0') << setw(4) << *itr << '\t';
+                                        else if (line > num){
+                                            --num;
+                                            break;
+                                        }
+                                        
+                                    }
+                                    else if (!isnan(stoi(*itr)) && line == num)
+                                    {
+                                        if (stoi(*itr) == 1 && stoi(*itr) == num)
+                                            cout << endl;
+                                        else if (stoi(*itr) == 1){
+                                            num--;
+                                            break;
+                                        }
+                                        cout << setfill('0') << setw(4) << *itr << '\t';
+                                    }
+                                }
+                                catch (exception e){}
+                            }   
+                        }
+                        cout << endl << endl << endl;
+                        main();
                     }
                         
                     case 3:
