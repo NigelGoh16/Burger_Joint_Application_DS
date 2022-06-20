@@ -10,6 +10,8 @@
 #include <cmath>
 #include <limits>
 #include <cstring>
+#include <bits/stdc++.h>
+#include <filesystem>
 
 using namespace std;
 
@@ -110,47 +112,45 @@ void ordering(int ord, int qty){
     }
 }
 
-void delete_record()
+void delete_record(int n, int num)
 {
-    file.open("Order.txt",ios::app);
-    temp.open("temp.txt",ios::out);
-    char data[25];
-    char id[25];
-    char a[25];
-    cin.ignore();
-    cout<<" \n\t Enter the id to delete record : ";
-    cin.getline(a,25);
-    while(!file.eof())
-    {
-        file.getline(id,25,',');
-        file.getline(data,25,',');
-        if(strcmp(id,a)==0)
-        {
-            continue;
-        }
-        else
-        {
-            temp<< id<<' '<<data<<' ';
-        }
+    ifstream file;
+    ofstream temp;
+    if (num == 0)
+        file.open("Order.txt", ios_base::in);
+    else if (num ==1)
+        file.open("Pending.txt", ios_base::in);
+    temp.open("Temp.txt", ios_base::app);
 
-
+    string data = "";
+    int line = 1;
+    while (getline(file, data,',')){
+        if (data == "\n")
+            break;
+        else if (data.find('\n') != string::npos){
+            ++line;
+            if (line != n){
+                temp << data << ',';
+            }
+        }
+        else if (line != n){
+            temp << data << ',';
+        }
     }
+  
     temp.close();
     file.close();
-
-    file.open("Order.txt",ios::out);
-    temp.open("temp.txt",ios::in);
-    while(!temp.eof())
-    {
-        temp.getline(id,25,',');
-        temp.getline(data,25,',');
-        //file<< id <<' '<<data<<' ';
+    if (num == 0){
+        remove("Order.txt");
+        remove("Pending.txt");
+        rename("Temp.txt", "Order.txt");
+        std::filesystem::copy_file("Order.txt", "Pending.txt");
     }
-    temp.close();
-    file.close();
-    remove("temp.txt");
-    cout<<"\n done !!! \n";
-}
+    else if (num ==1){
+        remove("Pending.txt");
+        rename("Temp.txt", "Pending.txt");
+    }
+    }
 
 fstream& GotoLine(fstream& file, unsigned int num){
     file.seekg(ios::beg);
@@ -164,7 +164,7 @@ fstream& GotoLine(fstream& file, unsigned int num){
 
 int main() {
     int choice, order, qty, function, payment, ID, line, num;
-    string data, elem;
+    string data, elem, s[10]; 
 
 	cout << "=== Welcome to the burger joint drive thru application! ===\n\n";
 
@@ -303,7 +303,9 @@ int main() {
                     }
                         
                     case 3:
-                        delete_record();
+                        cout << "Enter the order ID to delete: ";
+                        cin >> ID;
+                        delete_record(ID, 0);
                         main();
                 }
 
@@ -312,18 +314,78 @@ int main() {
                 cout << "You entered an invalid number. Please try again";
             break;
         case 2:
-            cout << "Order ID, Time, Date, Amount";
-                
-                //Need to include a function to call the stored data
+            cout << "\n\nOrder ID,\tDate,\t\tTime,\t\tAmount\n";
+            file.open("Pending.txt", ios_base::in);
+            
+            v.clear();
 
-                cout << "Select order for payment in numbers: ";
-                cin >> payment;
+            while (getline(file, data, ',')){
+                v.push_back(data);
+            }
+            for(itr=v.begin();itr!=v.end();itr++){
+                if (*itr == "Chicken burger" || *itr == "Beef burger" || *itr == "Coca cola" || *itr == "Pepsi"){
+                    advance(itr, 1);
+                }
+                else if (*itr == "total"){
+                    ++itr;
+                    cout << '\t' << fixed << setprecision(2) << stod(*itr) << '\t';
+                }
+                else if (*itr == "\n"){
+                    break;   
+                }
+                else if (!isnan(stoi(*itr)))
+                {
+                    cout << setfill('0') << setw(4) << *itr << '\t';
+                }
+            }   
+            file.close();
+            
+            cout << "\n\nSelect order for payment in numbers: ";
+            cin >> payment;
 
-                //include function to search order 
-                //and then another function to delete order
-                //then a function to display order details in the form of a receipt
+            file.open("Pending.txt", ios_base::in);
+            line = 1;
+            v.clear();
+            
+            while (getline(file, data, ',')){
+                if (data.find('\n') != string::npos){
+                    ++line;
+                    if (line == payment){
+                        v.push_back(data);
+                    }
+                }
+                else if (line == payment){
+                    v.push_back(data);
+                }
+            }
+            file.close();
 
-            break;
+            for(itr=v.begin();itr!=v.end();itr++){
+                if (*itr == "Chicken burger" || *itr == "Beef burger" || *itr == "Coca cola" || *itr == "Pepsi"){}
+                else if (*itr == "total"){
+                    ++itr;
+                    s[distance(v.begin(), itr)] = *itr;
+                }
+                else if (*itr == "\n"){}
+                else if (!isnan(stod(*itr))){
+                    s[distance(v.begin(), itr)] = *itr;
+                }
+            }   
+            cout << "\n\t\t                       Burger Joint - Customer Invoice                  "<< endl;
+            cout << "\t\t	///////////////////////////////////////////////////////////"<< endl;
+            cout << "\t\t	| Date :" << "-------------------------|" << s[1] << endl;
+            cout << "\t\t	| Time :" << "-------------------------|" << setfill('0') << setw(2) << ltm->tm_hour << setfill('0') << setw(2) << ltm->tm_min << endl;
+            cout << "\t\t	| Invoice No. :" << "------------------|" << setfill('0') << setw(4) << payment << " |"<< endl;
+            cout << "\t\t	 ________________________________________________________"<< endl;
+            cout <<"\n";
+            cout << "\t\t	| Total Payment Amount is :"<<"------|RM" << fixed << setprecision(2) << stod(s[4]) << " |" << endl;
+            cout << "\t\t	 ________________________________________________________"<< endl;
+            cout << "\t\t	 # This is a computer generated invoce and it does not"<< endl;
+            cout << "\t\t	 require an authorised signture #"<< endl<< endl;         
+            cout << endl << endl;
+                    
+            delete_record(payment, 1);
+            main();
         case 3:
             exit(3);
         default:
