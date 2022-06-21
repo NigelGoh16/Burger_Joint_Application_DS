@@ -144,14 +144,23 @@ void delete_record(int n, int num)
     temp.open("Temp.txt", ios_base::app);
 
     string data = "";
-    int line = 1, max = max_line(num);
+    int line = 1, max = max_line(num), no = 0;
 
     while (getline(file, data,',')){
+        while (no != 1){
+            if (stoi(data) == n)
+                no = 1;
+            else {
+                line = 9999;
+                no = 1;
+            }
+        }
         if (data == "\n")
             break;
-        
         else if (data.find('\n') != string::npos){
             ++line;
+            if (n == stoi(data))
+                line = n;
             if (line != n){
                 temp << data << ',';
             }
@@ -189,7 +198,7 @@ fstream& GotoLine(fstream& file, unsigned int num){
 
 
 int main() {
-    int choice, order, qty, function, payment, ID, line, num;
+    int choice, order, qty, function, payment, ID, line, num, no;
     string data, elem, s[10]; 
     bool check;
 
@@ -214,12 +223,10 @@ int main() {
                 while (order != 0 || qty != 0){
                     cout << "\nFood/Drinks: ";
                     cin >> order;
-                    if (order == 0){
+                    if (order == 0 || order < 0 || order > 4){
                         ordering(order, 0);
                         break;
                     }
-                    else if (order == 1 || order == 2 || order == 3 || order == 4)
-                        check = true;
                     cout << "Quantity: ";
                     cin >> qty;
                     if (qty == 0){
@@ -430,12 +437,22 @@ int main() {
             cin >> payment;
 
             file.open("Pending.txt", ios_base::in);
-            line = 1;
+            line = 1, no = 0;
             v.clear();
             
             while (getline(file, data, ',')){
+                while (no != 1){
+                    if (stoi(data) == payment)
+                        no = 1;
+                    else {
+                        line = 9999;
+                        no = 1;
+                   }
+                }
                 if (data.find('\n') != string::npos){
-                    ++line;
+                    line++;
+                    if (payment == stoi(data))
+                        line = payment;
                     if (line == payment){
                         v.push_back(data);
                     }
@@ -457,19 +474,30 @@ int main() {
                     s[distance(v.begin(), itr)] = *itr;
                 }
             }   
-            cout << "\n\t\t                       Burger Joint - Customer Invoice                  "<< endl;
-            cout << "\t\t	///////////////////////////////////////////////////////////"<< endl;
-            cout << "\t\t	| Date :" << "-------------------------|" << s[1] << endl;
-            cout << "\t\t	| Time :" << "-------------------------|" << setfill('0') << setw(2) << ltm->tm_hour << setfill('0') << setw(2) << ltm->tm_min << endl;
-            cout << "\t\t	| Invoice No. :" << "------------------|" << setfill('0') << setw(4) << payment << " |"<< endl;
-            cout << "\t\t	 ________________________________________________________"<< endl;
-            cout <<"\n";
-            cout << "\t\t	| Total Payment Amount is :"<<"------|RM" << fixed << setprecision(2) << stod(s[4]) << " |" << endl;
-            cout << "\t\t	 ________________________________________________________"<< endl;
-            cout << "\t\t	 # This is a computer generated invoce and it does not"<< endl;
-            cout << "\t\t	 require an authorised signture #"<< endl<< endl;         
-            cout << endl << endl;
-                    
+
+            try{
+                stod(s[4]);
+            }
+            catch(const std::exception& e)
+            {
+                cout << "The order id you have entered does not exist!\n\n";
+                check == true;
+            }
+            if (check == false){
+                cout << "\n\t\t                       Burger Joint - Customer Invoice                  "<< endl;
+                cout << "\t\t	///////////////////////////////////////////////////////////"<< endl;
+                cout << "\t\t	| Date :" << "-------------------------|" << s[1] << endl;
+                cout << "\t\t	| Time :" << "-------------------------|" << setfill('0') << setw(2) << ltm->tm_hour << setfill('0') << setw(2) << ltm->tm_min << endl;
+                cout << "\t\t	| Invoice No. :" << "------------------|" << setfill('0') << setw(4) << payment << " |"<< endl;
+                cout << "\t\t	 ________________________________________________________"<< endl;
+                cout <<"\n";
+                cout << "\t\t	| Total Payment Amount is :"<<"------|RM" << fixed << setprecision(2) << stod(s[4]) << " |" << endl;
+                cout << "\t\t	 ________________________________________________________"<< endl;
+                cout << "\t\t	 # This is a computer generated invoce and it does not"<< endl;
+                cout << "\t\t	 require an authorised signture #"<< endl<< endl;         
+                cout << endl << endl;
+            }
+
             delete_record(payment, 1);
             main();
         case 3:
