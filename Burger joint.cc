@@ -437,7 +437,7 @@ int main() {
             cin >> payment;
 
             file.open("Pending.txt", ios_base::in);
-            line = 1, no = 0;
+            line = 1, no = 0, check = false;
             v.clear();
             
             while (getline(file, data, ',')){
@@ -481,7 +481,7 @@ int main() {
             catch(const std::exception& e)
             {
                 cout << "The order id you have entered does not exist!\n\n";
-                check == true;
+                check = true;
             }
             if (check == false){
                 cout << "\n\t\t                       Burger Joint - Customer Invoice                  "<< endl;
