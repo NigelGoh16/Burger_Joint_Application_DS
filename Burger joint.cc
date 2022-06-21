@@ -11,18 +11,16 @@
 #include <limits>
 #include <cstring>
 #include <bits/stdc++.h>
+#include <filesystem>
 
 using namespace std;
 
 vector<string> v;
-vector<int> v1, v2;
 time_t now = time(0);
 tm *ltm = localtime(&now);
 fstream file;
 fstream temp;
 vector<string>::iterator itr;
-vector<int>::iterator itr1;
-map <int, int> mp;
 
 void writing(string elem, int qty){
     vector<string>::iterator itr = find(v.begin(), v.end(), elem);
@@ -74,7 +72,7 @@ void ordering(int ord, int qty){
     double price;
 
     if (ord == 0 || qty == 0){
-        return;
+        cout << "You have completed the order.\n\n";
     }
     else if (ord == 1){
         price = 5.00;
@@ -114,6 +112,27 @@ void ordering(int ord, int qty){
     }
 }
 
+int max_line(int num){
+    fstream file;
+    string data;
+    int maxline = 0;
+
+    v.clear();
+
+    if (num == 0)
+        file.open("Order.txt", ios_base::in);
+    else if (num ==1)
+        file.open("Pending.txt", ios_base::in);
+
+    while (getline(file, data)){
+        v.push_back(data);
+        maxline++;
+    }
+
+    return maxline;
+}
+
+
 void delete_record(int n, int num)
 {
     ifstream file;
@@ -125,10 +144,12 @@ void delete_record(int n, int num)
     temp.open("Temp.txt", ios_base::app);
 
     string data = "";
-    int line = 1;
+    int line = 1, max = max_line(num);
+
     while (getline(file, data,',')){
         if (data == "\n")
             break;
+        
         else if (data.find('\n') != string::npos){
             ++line;
             if (line != n){
@@ -137,6 +158,10 @@ void delete_record(int n, int num)
         }
         else if (line != n){
             temp << data << ',';
+        }
+        else if (n == max){
+            temp << "\n";
+            break;
         }
     }
   
@@ -151,7 +176,7 @@ void delete_record(int n, int num)
         remove("Pending.txt");
         rename("Temp.txt", "Pending.txt");
     }
-    }
+}
 
 fstream& GotoLine(fstream& file, unsigned int num){
     file.seekg(ios::beg);
@@ -166,6 +191,7 @@ fstream& GotoLine(fstream& file, unsigned int num){
 int main() {
     int choice, order, qty, function, payment, ID, line, num;
     string data, elem, s[10]; 
+    bool check;
 
 	cout << "=== Welcome to the burger joint drive thru application! ===\n\n";
 
@@ -176,30 +202,43 @@ int main() {
 
     switch (choice){
         case 1:
-            cout << "1. New Order\n" << "2. View Orders\n";
+            cout << "1. New Order\n" << "2. View Orders\n" << "3. Back\n";
             cout << "Enter your choice in numbers: ";
             cin >> choice;
             if (choice == 1){
+                v.clear();
                 cout << "Enter the order details (Chicken burger id = 1, Beef burger id = 2, Coca cola id = 3, Pepsi id = 4):\n";
-                
-                while (order != 0){
+                cout << "Enter 0 to complete the order";
+
+                check = false;
+                while (order != 0 || qty != 0){
                     cout << "\nFood/Drinks: ";
                     cin >> order;
-                    cout << "\nQuantity: ";
+                    if (order == 0){
+                        ordering(order, 0);
+                        break;
+                    }
+                    else if (order == 1 || order == 2 || order == 3 || order == 4)
+                        check = true;
+                    cout << "Quantity: ";
                     cin >> qty;
-                    cout << "Enter 0 to complete the order";
-                    
+                    if (qty == 0){
+                        ordering(0, qty);
+                        break;
+                    }
+                    else if (qty > 0)
+                        check = true;
                     ordering(order, qty);
                 }
-
-                writing1("Pending.txt");
-                writing1("Order.txt");
-                
-                cout << "\nYou have successfully completed your order.\n";
+                if (check == true){
+                    writing1("Pending.txt");
+                    writing1("Order.txt");
+                }
                 main();
             }
             else if (choice == 2)
             {
+                v.clear();
                 cout << "\n\nOrder ID,\tDate,\t\tTime,\t\tAmount\n";
                 file.open("Order.txt");
                 data = "";
@@ -229,10 +268,9 @@ int main() {
                 } 
                 file.close();
 
-                cout << "\nFunctions:\n" << "1. Search Order\n" << "2. Sort Orders\n" << "3. Cancel Order\n";
+                cout << "\nFunctions:\n" << "1. Search Order\n" << "2. Sort Orders\n" << "3. Cancel Order\n" << "4. Back\n";
                 cout << "Enter the function in numbers: ";
                 cin >> function;
-                
                 
                 switch (function){
                     case 1:{
@@ -286,21 +324,13 @@ int main() {
                         
                     case 2:
                     {
-                        //Sort id decreasing
                         cout << "\n\nOrder ID,\tDate,\t\tTime,\t\tAmount\n";
                         file.open("Order.txt", ios_base::in);
-                        data = "", num = 1;
+                        data = "", num = 0, check = false;
 
-                        v.clear();
                         while (getline(file, data, ','))
                         {
                             v.push_back(data);
-                        }
-                        file.close();
-
-                        data = "";
-                        file.open("Order.txt",ios_base::in);
-                        while (getline(file, data,',')){
                             if (data.find('\n') != string::npos){
                                 num++;
                             }
@@ -321,11 +351,15 @@ int main() {
                                     }
                                     else if (data.find('\n') != string::npos){
                                         ++line;
-                                        if (line == num)
+                                        if (line == num && check == true)
                                             cout << setfill('0') << setw(4) << *itr << '\t';
-                                        else if (line > num){
+                                        else if (line > num && check == true){
                                             --num;
                                             break;
+                                        }
+                                        else if (line == num && check == false){
+                                            cout << setfill('0') << setw(4) << line << "\t\t";
+                                            check = true;
                                         }
                                         
                                     }
@@ -344,43 +378,6 @@ int main() {
                             }   
                         }
                         cout << endl << endl << endl;
-
-                        //Sort Amount increasing
-                        cout << "\n\nOrder ID,\tDate,\t\tTime,\t\tAmount\n";
-                        file.open("Order.txt", ios_base::in);
-                        data = "", num = 1;
-
-                        while (getline(file, data, ','))
-                        {
-                            v.push_back(data);
-                        }
-                        file.close();
-
-                        for(itr=v.begin();itr!=v.end();itr++)
-                        {
-                            if (*itr == "total"){
-                                ++itr;
-                                v1.push_back(stoi(*itr));
-                            }
-                        }
-                        copy(v1.begin(), v1.end(), back_inserter(v2));
-                        sort(v1.begin(), v1.end());
-
-                        for (auto x : v1){
-                            for(itr1=v2.begin();itr1!=v2.end();itr++)
-                            {
-                                
-                            }
-                        }
-                            
-                        for(itr=v.begin();itr!=v.end();itr++)
-                        {
-                            if (*itr == "total"){
-                                ++itr;
-                                v1.push_back(stoi(*itr));
-                            }
-                        }
-
                         main();
                     }
                         
@@ -389,9 +386,16 @@ int main() {
                         cin >> ID;
                         delete_record(ID, 0);
                         main();
+
+                    case 4:
+                        main();
                 }
 
             }
+            else if (choice == 3){
+                main();
+            }
+            
             else
                 cout << "You entered an invalid number. Please try again";
             break;
