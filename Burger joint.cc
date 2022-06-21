@@ -195,15 +195,80 @@ fstream& GotoLine(fstream& file, unsigned int num){
     return file;
 }
 
+void Payment(string method, int payment){
+    file.open("Pending.txt", ios_base::in);
+    int line = 1, no = 0; 
+    bool check = false; 
+    string data = "", s[10];
+    v.clear();
+            
+    while (getline(file, data, ',')){
+        while (no != 1){
+            if (stoi(data) == payment)
+                no = 1;
+            else {
+                line = 9999;
+                no = 1;
+            }
+        }
+        if (data == "\n"){}
+        else if (data.find('\n') != string::npos){
+            line++;
+            if (payment == stoi(data))
+                line = payment;
+            if (line == payment){
+                v.push_back(data);
+            }
+        }
+        else if (line == payment){
+            v.push_back(data);
+        }
+    }
+    file.close();
 
+    for(itr=v.begin();itr!=v.end();itr++){
+        if (*itr == "Chicken burger" || *itr == "Beef burger" || *itr == "Coca cola" || *itr == "Pepsi"){}
+        else if (*itr == "total"){
+            ++itr;
+            s[distance(v.begin(), itr)] = *itr;
+        }
+        else if (*itr == "\n"){}
+        else if (!isnan(stod(*itr))){
+            s[distance(v.begin(), itr)] = *itr;
+        }
+    }   
+
+    try{
+        stod(s[4]);
+    }
+    catch(const std::exception& e)
+    {
+        cout << "The order id you have entered does not exist!\n\n";
+        check = true;
+    }
+    if (check == false){
+        cout << "\n\t\t                       Burger Joint - Customer Invoice                  "<< endl;
+        cout << "\t\t\t\t                     " << method << "                 \n";
+        cout << "\t\t	///////////////////////////////////////////////////////////"<< endl;
+        cout << "\t\t	| Date :" << "-------------------------|" << s[1] << endl;
+        cout << "\t\t	| Time :" << "-------------------------|" << setfill('0') << setw(2) << ltm->tm_hour << setfill('0') << setw(2) << ltm->tm_min << endl;
+        cout << "\t\t	| Invoice No. :" << "------------------|" << setfill('0') << setw(4) << payment << " |"<< endl;
+        cout << "\t\t	 ________________________________________________________"<< endl;
+        cout <<"\n";
+        cout << "\t\t	| Total Payment Amount is :"<<"------|RM" << fixed << setprecision(2) << stod(s[4]) << " |" << endl;
+        cout << "\t\t	 ________________________________________________________"<< endl;
+        cout << "\t\t	 # This is a computer generated invoice and it does not"<< endl;
+        cout << "\t\t	 require an authorised signture #"<< endl<< endl;         
+        cout << endl << endl;
+    }
+}
 
 int main() {
-    int choice, order, qty, function, payment, ID, line, num, no;
+    int choice, order, qty, function, payment, ID, line, num, method;
     string data, elem, s[10]; 
     bool check;
 
 	cout << "=== Welcome to the burger joint drive thru application! ===\n\n";
-
     cout << "\t\t\t Menu\n";
     cout << "1. Order\n" << "2. Payment\n" << "3. Exit\n";
     cout << "Enter your choice in numbers: ";
@@ -436,68 +501,41 @@ int main() {
             cout << "\n\nSelect order for payment in numbers: ";
             cin >> payment;
 
-            file.open("Pending.txt", ios_base::in);
-            line = 1, no = 0, check = false;
-            v.clear();
-            
-            while (getline(file, data, ',')){
-                while (no != 1){
-                    if (stoi(data) == payment)
-                        no = 1;
-                    else {
-                        line = 9999;
-                        no = 1;
-                   }
-                }
-                if (data.find('\n') != string::npos){
-                    line++;
-                    if (payment == stoi(data))
-                        line = payment;
-                    if (line == payment){
-                        v.push_back(data);
-                    }
-                }
-                else if (line == payment){
-                    v.push_back(data);
-                }
-            }
-            file.close();
-
-            for(itr=v.begin();itr!=v.end();itr++){
-                if (*itr == "Chicken burger" || *itr == "Beef burger" || *itr == "Coca cola" || *itr == "Pepsi"){}
-                else if (*itr == "total"){
-                    ++itr;
-                    s[distance(v.begin(), itr)] = *itr;
-                }
-                else if (*itr == "\n"){}
-                else if (!isnan(stod(*itr))){
-                    s[distance(v.begin(), itr)] = *itr;
-                }
+            cout << "\n\nSelect which payment method would you like to use:\n1) Cash\n2) Debit card\n3) E-wallet\n\nPlease select your payment method in numbers: ";
+            cin >> method;
+            if (method == 1){
+                data = "Cash";
+                Payment(data, payment);
             }   
-
-            try{
-                stod(s[4]);
+            else if (method == 2){
+                cout << "Select the debit card type:\n1) Visa\n2) Mastercard\n3) American Express\n\nPlease select the type in numbers: ";
+                cin >> method;
+                if (method == 1){
+                    data = "Visa";
+                }   
+                else if (method == 2){
+                    data = "Mastercard";
+                }
+                else if (method == 3){
+                    data = "American Express";
+                }
+                Payment(data, payment);
             }
-            catch(const std::exception& e)
-            {
-                cout << "The order id you have entered does not exist!\n\n";
-                check = true;
+            else if (method == 3){
+                cout << "Select the E-wallet type:\n1) Boost\n2) TouchNGo\n3) ShopeePay\n\nPlease select the type in numbers";
+                cin >> method;
+                if (method == 1){
+                    data = "Boost";
+                }   
+                else if (method == 2){
+                    data = "TouchNGo";
+                }
+                else if (method == 3){
+                    data = "ShopeePay";
+                }
+                Payment(data, payment);
             }
-            if (check == false){
-                cout << "\n\t\t                       Burger Joint - Customer Invoice                  "<< endl;
-                cout << "\t\t	///////////////////////////////////////////////////////////"<< endl;
-                cout << "\t\t	| Date :" << "-------------------------|" << s[1] << endl;
-                cout << "\t\t	| Time :" << "-------------------------|" << setfill('0') << setw(2) << ltm->tm_hour << setfill('0') << setw(2) << ltm->tm_min << endl;
-                cout << "\t\t	| Invoice No. :" << "------------------|" << setfill('0') << setw(4) << payment << " |"<< endl;
-                cout << "\t\t	 ________________________________________________________"<< endl;
-                cout <<"\n";
-                cout << "\t\t	| Total Payment Amount is :"<<"------|RM" << fixed << setprecision(2) << stod(s[4]) << " |" << endl;
-                cout << "\t\t	 ________________________________________________________"<< endl;
-                cout << "\t\t	 # This is a computer generated invoce and it does not"<< endl;
-                cout << "\t\t	 require an authorised signture #"<< endl<< endl;         
-                cout << endl << endl;
-            }
-
+               
             delete_record(payment, 1);
             main();
         case 3:
@@ -508,3 +546,4 @@ int main() {
             break;
     }
 }
+
